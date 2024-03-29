@@ -1,7 +1,8 @@
 import express from "express";
 import db from "../db/db.js";
 import Candidate from '../models/candidate.js';
-import {jwtAuthMiddleware, generateToken} from '../controllers/authentication.js';
+import User from '../models/user.js';
+const {createTokenForUser} = require('../models/createToken.js'); 
 const router = express.Router();
 
 //to get all candidates
@@ -11,6 +12,17 @@ router.get('/', async(req, res) => {
         const data = await Candidate.find();
         console.log("data fetch");
         res.status(200).json(data);
+        const candidate = await Candidate.find().sort({voteCount: 'desc'});
+
+        // Map the candidates to only return their name and voteCount
+        const voteRecord = candidate.map((data)=>{
+            return {
+                name: data.name,
+                count: data.voteCount
+            }
+        });
+
+        return res.status(200).json(voteRecord);
     } catch (err) {
         console.log(err);
         return res.status(500).json({error: 'Internal Server Error'});
@@ -19,27 +31,27 @@ router.get('/', async(req, res) => {
 })
 
 //to post a andidate
-router.post("/", async(req, res) => {
-    try {
-        const data =req.body;
-        const newCandidate = new Candidate(data); 
-        const saveCandidate=await newCandidate.save();
-        console.log("Candidate saved");
-        res.status(200).json(saveCandidate);
-    } catch (err) {
-        console.log(err);
-        return res.status(500).json({error: 'Internal Server Error'});
-    }
+// router.post("/", async(req, res) => {
+//     try {
+//         const data =req.body;
+//         const newCandidate = new Candidate(data); 
+//         const saveCandidate=await newCandidate.save();
+//         console.log("Candidate saved");
+//         res.status(200).json(saveCandidate);
+//     } catch (err) {
+//         console.log(err);
+//         return res.status(500).json({error: 'Internal Server Error'});
+//     }
     
-})
+// })
 
 //user voting
-router.get('/vote/:candidateID', jwtAuthMiddleware, async (req, res)=>{
+router.post('/:candidateID', createTokenForUser, async (req, res)=>{
     // no admin can vote
     // user can only vote once
     
     const candidateID = req.params.candidateID;
-    const userId = req.user.id;
+    const userId = req.user._id;
 
     try{
         // Find the Candidate document with the specified candidateID

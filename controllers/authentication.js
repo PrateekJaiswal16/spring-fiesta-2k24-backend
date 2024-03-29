@@ -1,4 +1,5 @@
-import { sign, verify } from "jsonwebtoken";
+import pkg from 'jsonwebtoken';
+const { sign, verify } = pkg;
 
 const secret = process.env.SECERT_JWT_TOKEN;
 
@@ -19,7 +20,4 @@ function validateToken(token) {
   return payload;
 }
 
-export default {
-  createTokenForUser,
-  validateToken,
-};
+module.exports ={createTokenForUser, validateToken} ;
