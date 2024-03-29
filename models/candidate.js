@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
-const candidateSchema = new mongoose.Schema({
+const candidateSchema = new Schema({
     name: {
         type: String,
         required: true
@@ -8,7 +8,7 @@ const candidateSchema = new mongoose.Schema({
     votes: [
         {
             user: {
-                type: mongoose.Schema.Types.ObjectId,
+                type: Schema.Types.ObjectId,
                 ref: 'User',
                 required: true
             },
@@ -24,5 +24,5 @@ const candidateSchema = new mongoose.Schema({
     }
 });
 
-const Candidate = mongoose.model('Candidate', candidateSchema);
-module.exports = Candidate;
+const Candidate = model('Candidate', candidateSchema);
+export default Candidate;
